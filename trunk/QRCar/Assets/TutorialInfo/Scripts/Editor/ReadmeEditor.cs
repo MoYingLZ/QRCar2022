@@ -5,6 +5,9 @@ using UnityEditor;
 using System;
 using System.IO;
 using System.Reflection;
+using UnityEditor.SceneManagement;
+//using UnityEngine.Sequences;
+using UnityEngine.Playables;
 
 [CustomEditor(typeof(Readme))]
 [InitializeOnLoad]
@@ -41,8 +44,20 @@ public class ReadmeEditor : Editor {
 		var method = windowLayoutType.GetMethod("LoadWindowLayout", BindingFlags.Public | BindingFlags.Static);
 		method.Invoke(null, new object[]{Path.Combine(Application.dataPath, "TutorialInfo/Layout.wlt"), false});
 	}
-	
-	[MenuItem("Tutorial/Show Tutorial Instructions")]
+
+	public static void LoadCustomLayout(string layoutPath)
+	{
+		if (System.IO.File.Exists(layoutPath))
+		{
+			EditorUtility.LoadWindowLayout(layoutPath);
+		}
+		else
+		{
+			Debug.LogWarning("Layout not loaded. Layout file missing at: " + layoutPath);
+		}
+	}
+
+	[MenuItem("Help/Show HMI Template Readme")]
 	static Readme SelectReadme() 
 	{
 		var ids = AssetDatabase.FindAssets("Readme t:Readme");
@@ -80,7 +95,7 @@ public class ReadmeEditor : Editor {
 	{
 		var readme = (Readme)target;
 		Init();
-		
+        
 		foreach (var section in readme.sections)
 		{
 			if (!string.IsNullOrEmpty(section.heading))
@@ -100,6 +115,22 @@ public class ReadmeEditor : Editor {
 			}
 			GUILayout.Space(kSpace);
 		}
+        
+        GUILayout.Label("Open Display Scenes:", HeadingStyle);
+        
+        if (GUILayout.Button("Instrument Cluster (2560x1080)"))
+        {
+            UnityEngine.SceneManagement.Scene scene = EditorSceneManager.OpenScene(@"Assets/UnityTechnologies/HMITemplate/Scenes/Cluster.unity");
+        }
+        if (GUILayout.Button("Main Unit (1920x1080)"))
+        {
+            UnityEngine.SceneManagement.Scene scene = EditorSceneManager.OpenScene(@"Assets/UnityTechnologies/HMITemplate/Scenes/IVI.unity");
+        }
+        if (GUILayout.Button("HVAC (1920x1080)"))
+        {
+            UnityEngine.SceneManagement.Scene scene = EditorSceneManager.OpenScene(@"Assets/UnityTechnologies/HMITemplate/Scenes/HVAC.unity");
+        }
+		
 	}
 	
 	
